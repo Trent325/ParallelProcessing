@@ -48,7 +48,7 @@ void HashMap::insert(const std::string& key) {
 }
 
 WordInfo* HashMap::find(const std::string& key) {
-    std::lock_guard<std::mutex> lock(arrayMutex1); // Protect the entire find operation
+    //std::lock_guard<std::mutex> lock(arrayMutex1); // Protect the entire find operation
 
     size_t index = customHash(key);
     while (!table[index].word.empty() && table[index].word != key) {
@@ -63,7 +63,7 @@ WordInfo* HashMap::find(const std::string& key) {
 }
 
 WordInfo* HashMap::getWordInfoAtIndex(size_t index) {
-    std::lock_guard<std::mutex> lock(arrayMutex1);
+    //std::lock_guard<std::mutex> lock(arrayMutex1);
 
     if (index < tableSize) {
         return &table[index];
@@ -116,23 +116,66 @@ void HashMap::resizeTable(size_t newSize) {
 }
 
 void HashMap::quickSort(WordInfo* arr, size_t low, size_t high) {
+    // Check for null pointer
+    if (arr == nullptr) {
+        std::cerr << "Error: Null pointer in quickSort." << std::endl;
+        return;
+    }
+
     if (low < high) {
+        // Verify indices
+        if (low >= tableSize || high >= tableSize) {
+            std::cerr << "Error: Indices out of bounds in quickSort. low=" << low << ", high=" << high << ", tableSize=" << tableSize << std::endl;
+            return;
+        }
+
         size_t pivotIndex = (low + high) / 2;
+
+        // Verify pivotIndex
+        if (pivotIndex >= tableSize) {
+            std::cerr << "Error: Pivot index out of bounds in quickSort. pivotIndex=" << pivotIndex << ", tableSize=" << tableSize << std::endl;
+            return;
+        }
+
         WordInfo pivotValue = arr[pivotIndex];
 
         size_t i = low;
         size_t j = high;
 
         while (i <= j) {
+            // Verify indices
+            if (i >= tableSize || j >= tableSize) {
+                std::cerr << "Error: Indices out of bounds in quickSort. i=" << i << ", j=" << j << ", tableSize=" << tableSize << std::endl;
+                return;
+            }
+
             while (arr[i].count > pivotValue.count) {
+                // Verify index
+                if (i >= tableSize) {
+                    std::cerr << "Error: Index out of bounds in quickSort. i=" << i << ", tableSize=" << tableSize << std::endl;
+                    return;
+                }
+
                 i++;
             }
 
             while (arr[j].count < pivotValue.count) {
+                // Verify index
+                if (j >= tableSize) {
+                    std::cerr << "Error: Index out of bounds in quickSort. j=" << j << ", tableSize=" << tableSize << std::endl;
+                    return;
+                }
+
                 j--;
             }
 
             if (i <= j) {
+                // Verify indices
+                if (i >= tableSize || j >= tableSize) {
+                    std::cerr << "Error: Indices out of bounds in quickSort. i=" << i << ", j=" << j << ", tableSize=" << tableSize << std::endl;
+                    return;
+                }
+
                 // Swap elements at i and j
                 std::swap(arr[i], arr[j]);
 
@@ -151,6 +194,8 @@ void HashMap::quickSort(WordInfo* arr, size_t low, size_t high) {
         }
     }
 }
+
+
 
 // Function to sort the WordInfo array based on count
 void HashMap::sortWordsByCount() {
